@@ -16,10 +16,19 @@ project(lovr)
 file(GLOB_RECURSE LOVR_SRC src/*.c)
 add_executable(lovr ${LOVR_SRC})
 
+if(EMSCRIPTEN)
+  set(CMAKE_EXECUTABLE_SUFFIX ".html")
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # LuaJIT
-if(WIN32)
+if(EMSCRIPTEN)
+  option(LUA_USE_RELATIVE_LOADLIB OFF)
+  add_subdirectory(deps/lua lua)
+  include_directories(deps/lua/src ${CMAKE_BINARY_DIR}/lua)
+  set(LOVR_LUA liblua)
+elseif(WIN32)
   add_subdirectory(deps/luajit luajit)
   include_directories(deps/luajit/src ${CMAKE_BINARY_DIR}/luajit)
   set(LOVR_LUA liblua)
@@ -34,7 +43,11 @@ else()
 endif()
 
 # GLEW / OpenGL
-if(WIN32)
+if (EMSCRIPTEN)
+  find_package(OpenGL REQUIRED)
+  include_directories(${OPENGL_INCLUDE_DIR})
+  set(LOVR_GL ${OPENGL_LIBRARIES})
+elseif(WIN32)
   add_subdirectory(deps/glew glew)
   include_directories(deps/glew/include)
   set(LOVR_GL glew)
@@ -45,7 +58,9 @@ else()
 endif()
 
 # GLFW
-if(WIN32)
+if(EMSCRIPTEN)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3")
+elseif(WIN32)
   add_subdirectory(deps/glfw glfw)
   include_directories(deps/glfw/include)
   set(LOVR_GLFW glfw ${GLFW_LIBRARIES})
@@ -56,7 +71,9 @@ else()
 endif()
 
 # PhysicsFS
-if(WIN32)
+if(EMSCRIPTEN)
+  # do nothing
+elseif(WIN32)
   add_subdirectory(deps/physfs physfs)
   include_directories(deps/physfs)
   set(LOVR_PHYSFS physfs)
@@ -69,7 +86,7 @@ endif()
 # assimp
 option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 option(ASSIMP_BUILD_TESTS OFF)
-if(WIN32)
+if(WIN32 OR EMSCRIPTEN)
   add_subdirectory(deps/assimp assimp)
   include_directories(deps/assimp/include)
   set(LOVR_ASSIMP assimp)
@@ -80,7 +97,9 @@ else()
 endif()
 
 # openvr
-if(WIN32)
+if(EMSCRIPTEN)
+  # do nothing
+elseif(WIN32)
   include_directories(deps/openvr/headers)
   target_link_libraries(lovr ${CMAKE_SOURCE_DIR}/deps/openvr/lib/win32/openvr_api.lib)
   add_custom_command(TARGET lovr POST_BUILD

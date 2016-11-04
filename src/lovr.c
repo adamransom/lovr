@@ -1,4 +1,8 @@
 #include "lovr.h"
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 #include "lovr/event.h"
 #include "lovr/filesystem.h"
 #include "lovr/graphics.h"
@@ -108,29 +112,33 @@ void lovrInit(lua_State* L, int argc, char** argv) {
     "  end "
     "}) "
 
+    "function lovr.step() "
+    "  lovr.event.pump() "
+    "  for name, a, b, c, d in lovr.event.poll() do "
+    "    if name == 'quit' and (not lovr.quit or not lovr.quit()) then "
+    "      return a "
+    "    end "
+    "    lovr.handlers[name](a, b, c, d) "
+    "  end "
+    "  local dt = lovr.timer.step() "
+    "  if lovr.update then lovr.update(dt) end "
+    "  lovr.graphics.clear() "
+    "  lovr.graphics.origin() "
+    "  if lovr.draw then "
+    "    if lovr.headset and lovr.headset.isPresent() then "
+    "      lovr.headset.renderTo(lovr.draw) "
+    "    else "
+    "      lovr.draw() "
+    "    end "
+    "  end "
+    "  lovr.graphics.present() "
+    "  lovr.timer.sleep(.001) "
+    "end "
+
     "function lovr.run() "
     "  if lovr.load then lovr.load() end "
     "  while true do "
-    "    lovr.event.pump() "
-    "    for name, a, b, c, d in lovr.event.poll() do "
-    "      if name == 'quit' and (not lovr.quit or not lovr.quit()) then "
-    "        return a "
-    "      end "
-    "      lovr.handlers[name](a, b, c, d) "
-    "    end "
-    "    local dt = lovr.timer.step() "
-    "    if lovr.update then lovr.update(dt) end "
-    "    lovr.graphics.clear() "
-    "    lovr.graphics.origin() "
-    "    if lovr.draw then "
-    "      if lovr.headset and lovr.headset.isPresent() then "
-    "        lovr.headset.renderTo(lovr.draw) "
-    "      else "
-    "        lovr.draw() "
-    "      end "
-    "    end "
-    "    lovr.graphics.present() "
-    "    lovr.timer.sleep(.001) "
+    "    lovr.step() "
     "  end "
     "end "
 
@@ -157,8 +165,23 @@ void lovrDestroy(int exitCode) {
   exit(exitCode);
 }
 
-void lovrRun(lua_State* L) {
+#ifdef EMSCRIPTEN
+static void emscriptenLoop(void* arg) {
+  lua_State* L = (lua_State*) arg;
 
+  // lovr.step()
+  lua_getglobal(L, "lovr");
+  lua_getfield(L, -1, "step");
+  lua_call(L, 0, 0);
+}
+
+void lovrRun(lua_State* L) {
+  emscripten_set_main_loop_arg(emscriptenLoop, (void*) L, 0, 1);
+}
+
+#else
+
+void lovrRun(lua_State* L) {
   // lovr.run()
   lua_getglobal(L, "lovr");
   lua_getfield(L, -1, "run");
@@ -168,3 +191,4 @@ void lovrRun(lua_State* L) {
   int exitCode = luaL_optint(L, -1, 0);
   lovrDestroy(exitCode);
 }
+#endif

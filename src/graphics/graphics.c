@@ -25,7 +25,9 @@ void lovrGraphicsInit() {
   state.defaultTexture = lovrTextureCreateFromData(lovrTextureDataGetEmpty());
   glGenBuffers(1, &state.shapeBuffer);
   glGenBuffers(1, &state.shapeIndexBuffer);
+#ifndef EMSCRIPTEN
   glGenVertexArrays(1, &state.shapeArray);
+#endif
   vec_init(&state.shapeData);
   vec_init(&state.shapeIndices);
   state.depthTest = -1;
@@ -44,7 +46,9 @@ void lovrGraphicsDestroy() {
   lovrRelease(&state.defaultTexture->ref);
   glDeleteBuffers(1, &state.shapeBuffer);
   glDeleteBuffers(1, &state.shapeIndexBuffer);
+#ifndef EMSCRIPTEN
   glDeleteVertexArrays(1, &state.shapeArray);
+#endif
   vec_deinit(&state.shapeData);
   vec_deinit(&state.shapeIndices);
 }
@@ -337,7 +341,9 @@ void lovrGraphicsDrawLinedShape(GLenum mode) {
 
   lovrGraphicsPrepare();
   lovrGraphicsBindTexture(NULL);
+#ifndef EMSCRIPTEN
   glBindVertexArray(state.shapeArray);
+#endif
   glBindBuffer(GL_ARRAY_BUFFER, state.shapeBuffer);
   glBufferData(GL_ARRAY_BUFFER, vertices->length * sizeof(float), vertices->data, GL_STREAM_DRAW);
   glEnableVertexAttribArray(0);
@@ -359,7 +365,9 @@ void lovrGraphicsDrawFilledShape() {
 
   lovrGraphicsPrepare();
   lovrGraphicsBindTexture(NULL);
+#ifndef EMSCRIPTEN
   glBindVertexArray(state.shapeArray);
+#endif
   glBindBuffer(GL_ARRAY_BUFFER, state.shapeBuffer);
   glBufferData(GL_ARRAY_BUFFER, vertices->length * sizeof(float), vertices->data, GL_STREAM_DRAW);
   glEnableVertexAttribArray(LOVR_SHADER_POSITION);
@@ -367,7 +375,9 @@ void lovrGraphicsDrawFilledShape() {
   glEnableVertexAttribArray(LOVR_SHADER_NORMAL);
   glVertexAttribPointer(LOVR_SHADER_NORMAL, 3, GL_FLOAT, GL_FALSE, strideBytes, (void*) (3 * sizeof(float)));
   glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices->length / stride);
+#ifndef EMSCRIPTEN
   glBindVertexArray(0);
+#endif
 }
 
 void lovrGraphicsPoints(float* points, int count) {

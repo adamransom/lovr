@@ -49,7 +49,9 @@ Buffer* lovrBufferCreate(int size, BufferFormat* format, BufferDrawMode drawMode
   glGenBuffers(1, &buffer->vbo);
   glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
   glBufferData(GL_ARRAY_BUFFER, buffer->size * buffer->stride, buffer->data, buffer->usage);
+#ifndef EMSCRIPTEN
   glGenVertexArrays(1, &buffer->vao);
+#endif
   glGenBuffers(1, &buffer->ibo);
 
   return buffer;
@@ -61,7 +63,9 @@ void lovrBufferDestroy(const Ref* ref) {
     lovrRelease(&buffer->texture->ref);
   }
   glDeleteBuffers(1, &buffer->vbo);
+#ifndef EMSCRIPTEN
   glDeleteVertexArrays(1, &buffer->vao);
+#endif
   vec_deinit(&buffer->map);
   vec_deinit(&buffer->format);
   free(buffer->scratchVertex);
@@ -74,7 +78,9 @@ void lovrBufferDraw(Buffer* buffer) {
 
   lovrGraphicsPrepare();
   lovrGraphicsBindTexture(buffer->texture);
+#ifndef EMSCRIPTEN
   glBindVertexArray(buffer->vao);
+#endif
 
   // Figure out how many vertex attributes there are
   int vertexAttributeCount;

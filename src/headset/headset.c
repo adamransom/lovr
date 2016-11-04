@@ -1,15 +1,21 @@
 #include "headset/headset.h"
+#ifndef EMSCRIPTEN
 #include "headset/vive.h"
+#endif
 #include "event/event.h"
 
 static Headset* headset;
 
 void lovrHeadsetInit() {
+  headset = NULL;
+
+#ifndef EMSCRIPTEN
   headset = viveInit();
 
   if (headset) {
     lovrEventAddPump(lovrHeadsetPoll);
   }
+#endif
 }
 
 void lovrHeadsetPoll() {
