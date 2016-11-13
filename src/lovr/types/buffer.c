@@ -99,13 +99,14 @@ int l_lovrBufferDraw(lua_State* L) {
 
 int l_lovrBufferFeedback(lua_State* L) {
   Buffer* buffer = luax_checkbuffer(L, 1);
-  float output[5];
-  lovrBufferFeedback(buffer, output, sizeof(output));
+  int size;
+  float* data = (float*) lovrBufferFeedback(buffer, &size);
   lua_newtable(L);
-  for (int i = 0; i < 5; i++) {
-    lua_pushnumber(L, output[i]);
+  for (int i = 0; i < size; i++) {
+    lua_pushnumber(L, data[i]);
     lua_rawseti(L, -2, i + 1);
   }
+  free(data);
   return 1;
 }
 

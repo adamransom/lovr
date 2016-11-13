@@ -119,13 +119,40 @@ void lovrBufferDraw(Buffer* buffer) {
   }
 }
 
-void lovrBufferFeedback(Buffer* buffer, void* output, int size) {
+void* lovrBufferFeedback(Buffer* buffer, int* size) {
   if (!buffer->tbo) {
     glGenBuffers(1, &buffer->tbo);
   }
 
+  Shader* shader = lovrGraphicsGetShader();
+
+  if (!shader) {
+    return NULL;
+  }
+
+  int eachSize = shader->feedbackOutputSize;
+  int totalSize;
+
+  switch (buffer->drawMode) {
+    case BUFFER_POINTS:
+      totalSize = eachSize * buffer->size;
+      break;
+
+    case BUFFER_TRIANGLE_STRIP:
+      totalSize = eachSize * (buffer->size - 2) * 3;
+      break;
+
+    case BUFFER_TRIANGLES:
+      totalSize = eachSize * buffer->size;
+      break;
+
+    case BUFFER_TRIANGLE_FAN:
+      totalSize = eachSize * (buffer->size - 2) * 3;
+      break;
+  }
+
   glBindBuffer(GL_ARRAY_BUFFER, buffer->tbo);
-  glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_READ);
+  glBufferData(GL_ARRAY_BUFFER, totalSize, NULL, GL_STATIC_READ);
 
   glEnable(GL_RASTERIZER_DISCARD);
   glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->tbo);
@@ -134,8 +161,12 @@ void lovrBufferFeedback(Buffer* buffer, void* output, int size) {
   glEndTransformFeedback();
   glDisable(GL_RASTERIZER_DISCARD);
 
+  void* output = malloc(totalSize);
   glFlush();
-  glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, size, output);
+  glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, totalSize, output);
+
+  *size = totalSize / shader->feedbackOutputSize;
+  return output;
 }
 
 BufferFormat lovrBufferGetVertexFormat(Buffer* buffer) {

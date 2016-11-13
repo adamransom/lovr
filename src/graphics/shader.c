@@ -136,12 +136,23 @@ Shader* lovrShaderCreate(const char* vertexSource, const char* fragmentSource, c
 
   // Initial state
   shader->id = id;
+  shader->feedbackOutputSize = 0;
   shader->transform = mat4_init();
   shader->projection = mat4_init();
   shader->color = 0;
 
   // Send initial uniform values to shader
   lovrShaderBind(shader, shader->transform, shader->projection, shader->color, 1);
+
+  // Feedback
+  if (feedbackCount) {
+    for (int i = 0; i < feedbackCount; i++) {
+      int size;
+      GLenum type;
+      glGetTransformFeedbackVarying(id, i, 0, NULL, &size, &type, NULL);
+      shader->feedbackOutputSize += size * sizeof(type);
+    }
+  }
 
   return shader;
 }

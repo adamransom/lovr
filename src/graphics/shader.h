@@ -22,6 +22,7 @@ typedef map_t(Uniform) map_uniform_t;
 
 typedef struct {
   int id;
+  int feedbackOutputSize;
   map_uniform_t uniforms;
   mat4 transform;
   mat4 projection;
