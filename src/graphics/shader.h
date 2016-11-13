@@ -37,9 +37,9 @@ extern const char* lovrSkyboxVertexShader;
 extern const char* lovrSkyboxFragmentShader;
 
 GLuint compileShader(GLuint type, const char* filename);
-GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader);
+GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader, const char** feedbacks, int feedbackCount);
 
-Shader* lovrShaderCreate(const char* vertexSource, const char* fragmentSource);
+Shader* lovrShaderCreate(const char* vertexSource, const char* fragmentSource, const char** feedbacks, int feedbackCount);
 void lovrShaderDestroy(Shader* shader);
 void lovrShaderBind(Shader* shader, mat4 transform, mat4 projection, unsigned int color, int force);
 int lovrShaderGetAttributeId(Shader* shader, const char* name);

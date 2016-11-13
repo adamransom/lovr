@@ -13,8 +13,8 @@ static GraphicsState state;
 void lovrGraphicsInit() {
   vec_init(&state.transforms);
   state.projection = mat4_init();
-  state.defaultShader = lovrShaderCreate(lovrDefaultVertexShader, lovrDefaultFragmentShader);
-  state.skyboxShader = lovrShaderCreate(lovrSkyboxVertexShader, lovrSkyboxFragmentShader);
+  state.defaultShader = lovrShaderCreate(lovrDefaultVertexShader, lovrDefaultFragmentShader, NULL, 0);
+  state.skyboxShader = lovrShaderCreate(lovrSkyboxVertexShader, lovrSkyboxFragmentShader, NULL, 0);
   glGenBuffers(1, &state.shapeBuffer);
   glGenBuffers(1, &state.shapeIndexBuffer);
   glGenVertexArrays(1, &state.shapeArray);

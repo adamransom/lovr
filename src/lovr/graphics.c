@@ -564,7 +564,20 @@ int l_lovrGraphicsNewShader(lua_State* L) {
 
   const char* vertexSource = lua_tostring(L, 1);
   const char* fragmentSource = lua_tostring(L, 2);
-  luax_pushshader(L, lovrShaderCreate(vertexSource, fragmentSource));
+
+  // Feedbhack
+  if (lua_istable(L, 3)) {
+    int count = lua_objlen(L, 3);
+    const char* feedbacks[count];
+    for (int i = 0; i < count; i++) {
+      lua_rawgeti(L, 3, i + 1);
+      feedbacks[i] = lua_tostring(L, -1);
+    }
+    luax_pushshader(L, lovrShaderCreate(vertexSource, fragmentSource, feedbacks, count));
+  } else {
+    luax_pushshader(L, lovrShaderCreate(vertexSource, fragmentSource, NULL, 0));
+  }
+
   return 1;
 }
 

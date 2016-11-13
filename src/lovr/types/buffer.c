@@ -75,6 +75,7 @@ int luax_destroybuffer(lua_State* L) {
 
 const luaL_Reg lovrBuffer[] = {
   { "draw", l_lovrBufferDraw },
+  { "feedback", l_lovrBufferFeedback },
   { "getVertexCount", l_lovrBufferGetVertexCount },
   { "getVertex", l_lovrBufferGetVertex },
   { "setVertex", l_lovrBufferSetVertex },
@@ -94,6 +95,18 @@ int l_lovrBufferDraw(lua_State* L) {
   Buffer* buffer = luax_checkbuffer(L, 1);
   lovrBufferDraw(buffer);
   return 0;
+}
+
+int l_lovrBufferFeedback(lua_State* L) {
+  Buffer* buffer = luax_checkbuffer(L, 1);
+  float output[5];
+  lovrBufferFeedback(buffer, output, sizeof(output));
+  lua_newtable(L);
+  for (int i = 0; i < 5; i++) {
+    lua_pushnumber(L, output[i]);
+    lua_rawseti(L, -2, i + 1);
+  }
+  return 1;
 }
 
 int l_lovrBufferGetDrawMode(lua_State* L) {

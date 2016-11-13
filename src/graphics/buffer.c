@@ -37,6 +37,7 @@ Buffer* lovrBufferCreate(int size, BufferFormat* format, BufferDrawMode drawMode
   buffer->vao = 0;
   buffer->vbo = 0;
   buffer->ibo = 0;
+  buffer->tbo = 0;
   buffer->isRangeEnabled = 0;
   buffer->rangeStart = 0;
   buffer->rangeCount = buffer->size;
@@ -116,6 +117,25 @@ void lovrBufferDraw(Buffer* buffer) {
   } else {
     glDrawArrays(buffer->drawMode, start, count);
   }
+}
+
+void lovrBufferFeedback(Buffer* buffer, void* output, int size) {
+  if (!buffer->tbo) {
+    glGenBuffers(1, &buffer->tbo);
+  }
+
+  glBindBuffer(GL_ARRAY_BUFFER, buffer->tbo);
+  glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_READ);
+
+  glEnable(GL_RASTERIZER_DISCARD);
+  glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->tbo);
+  glBeginTransformFeedback(buffer->drawMode);
+  lovrBufferDraw(buffer);
+  glEndTransformFeedback();
+  glDisable(GL_RASTERIZER_DISCARD);
+
+  glFlush();
+  glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, size, output);
 }
 
 BufferFormat lovrBufferGetVertexFormat(Buffer* buffer) {

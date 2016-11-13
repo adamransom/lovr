@@ -63,7 +63,7 @@ GLuint compileShader(GLenum type, const char* source) {
   return shader;
 }
 
-GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader) {
+GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader, const char** feedback, int feedbackCount) {
   GLuint shader = glCreateProgram();
 
   if (vertexShader) {
@@ -76,6 +76,10 @@ GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader) {
 
   glBindAttribLocation(shader, LOVR_SHADER_POSITION, "position");
   glBindAttribLocation(shader, LOVR_SHADER_NORMAL, "normal");
+
+  if (feedbackCount > 0) {
+    glTransformFeedbackVaryings(shader, feedbackCount, feedback, GL_INTERLEAVED_ATTRIBS);
+  }
 
   glLinkProgram(shader);
 
@@ -98,24 +102,24 @@ GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader) {
   return shader;
 }
 
-Shader* lovrShaderCreate(const char* vertexSource, const char* fragmentSource) {
+Shader* lovrShaderCreate(const char* vertexSource, const char* fragmentSource, const char** feedback, int feedbackCount) {
   Shader* shader = (Shader*) malloc(sizeof(Shader));
   if (!shader) return NULL;
 
   // Vertex
   vertexSource = vertexSource == NULL ? lovrDefaultVertexShader : vertexSource;
-  char fullVertexSource[1024];
+  char fullVertexSource[4096];
   snprintf(fullVertexSource, sizeof(fullVertexSource), "%s\n%s", lovrShaderVertexPrefix, vertexSource);
   GLuint vertexShader = compileShader(GL_VERTEX_SHADER, fullVertexSource);
 
   // Fragment
   fragmentSource = fragmentSource == NULL ? lovrDefaultFragmentShader : fragmentSource;
-  char fullFragmentSource[1024];
+  char fullFragmentSource[4096];
   snprintf(fullFragmentSource, sizeof(fullFragmentSource), "%s\n%s", lovrShaderFragmentPrefix, fragmentSource);
   GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fullFragmentSource);
 
   // Link
-  GLuint id = linkShaders(vertexShader, fragmentShader);
+  GLuint id = linkShaders(vertexShader, fragmentShader, feedback, feedbackCount);
 
   // Compute information about uniforms
   GLint uniformCount;
