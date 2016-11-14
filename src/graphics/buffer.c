@@ -165,7 +165,7 @@ void* lovrBufferFeedback(Buffer* buffer, int* size) {
   glFlush();
   glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, totalSize, output);
 
-  *size = totalSize / shader->feedbackOutputSize;
+  *size = totalSize / sizeof(float);
   return output;
 }
 

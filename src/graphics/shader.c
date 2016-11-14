@@ -150,7 +150,7 @@ Shader* lovrShaderCreate(const char* vertexSource, const char* fragmentSource, c
       int size;
       GLenum type;
       glGetTransformFeedbackVarying(id, i, 0, NULL, &size, &type, NULL);
-      shader->feedbackOutputSize += size * sizeof(type);
+      shader->feedbackOutputSize += 12;
     }
   }
 
