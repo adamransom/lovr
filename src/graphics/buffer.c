@@ -88,7 +88,11 @@ void lovrBufferDraw(Buffer* buffer) {
       int location = lovrShaderGetAttributeId(shader, attribute.name);
       if (location >= 0) {
         glEnableVertexAttribArray(location);
-        glVertexAttribPointer(location, attribute.size, attribute.type, GL_FALSE, buffer->stride, (void*) offset);
+        if (attribute.type == GL_INT) {
+          glVertexAttribIPointer(location, attribute.size, attribute.type, buffer->stride, (void*) offset);
+        } else {
+          glVertexAttribPointer(location, attribute.size, attribute.type, GL_FALSE, buffer->stride, (void*) offset);
+        }
       }
       offset += sizeof(attribute.type) * attribute.size;
     }
@@ -125,6 +129,7 @@ void* lovrBufferFeedback(Buffer* buffer, int* size) {
   }
 
   Shader* shader = lovrGraphicsGetShader();
+  lovrGraphicsPrepare();
 
   if (!shader) {
     return NULL;
