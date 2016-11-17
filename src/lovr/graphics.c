@@ -568,7 +568,7 @@ int l_lovrGraphicsNewShader(lua_State* L) {
   // Feedbhack
   if (lua_istable(L, 3)) {
     int count = lua_objlen(L, 3);
-    const char* feedbacks[count];
+    const char* feedbacks[2];
     for (int i = 0; i < count; i++) {
       lua_rawgeti(L, 3, i + 1);
       feedbacks[i] = lua_tostring(L, -1);
@@ -637,4 +637,3 @@ int l_lovrGraphicsNewTexture(lua_State* L) {
   luax_pushtexture(L, texture);
   return 1;
 }
-

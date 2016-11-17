@@ -99,7 +99,7 @@ int l_lovrBufferDraw(lua_State* L) {
 
 int l_lovrBufferFeedback(lua_State* L) {
   Buffer* buffer = luax_checkbuffer(L, 1);
-  int size;
+  int size = 0;
   float* data = (float*) lovrBufferFeedback(buffer, &size);
   lua_newtable(L);
   for (int i = 0; i < size; i++) {
@@ -222,7 +222,7 @@ int l_lovrBufferSetVertices(lua_State* L) {
   BufferFormat format = lovrBufferGetVertexFormat(buffer);
   luaL_checktype(L, 2, LUA_TTABLE);
   int vertexCount = lua_objlen(L, 2);
-  char vertices[buffer->stride * vertexCount];
+  char* vertices = malloc(buffer->stride * vertexCount);
   char* v = vertices;
 
   for (int i = 0; i < vertexCount; i++) {
@@ -271,6 +271,7 @@ int l_lovrBufferSetVertices(lua_State* L) {
   }
 
   lovrBufferSetVertices(buffer, vertices, buffer->stride * vertexCount);
+  free(vertices);
   return 0;
 }
 

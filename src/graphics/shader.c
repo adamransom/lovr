@@ -144,7 +144,7 @@ Shader* lovrShaderCreate(const char* vertexSource, const char* fragmentSource, c
   // Send initial uniform values to shader
   lovrShaderBind(shader, shader->transform, shader->projection, shader->color, 1);
 
-  // Feedback
+  // I hate transform feedback
   if (feedbackCount) {
     for (int i = 0; i < feedbackCount; i++) {
       int size;
