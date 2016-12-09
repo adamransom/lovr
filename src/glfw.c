@@ -26,7 +26,6 @@ void initGlfw() {
 
   glfwMakeContextCurrent(window);
 
-#ifdef _WIN32
   glewExperimental = GL_TRUE;
   GLenum err = glewInit();
   if (err != GLEW_OK) {
@@ -34,7 +33,6 @@ void initGlfw() {
   } else if (!GLEW_VERSION_2_1) {
     error("Geez your OpenGL is old");
   }
-#endif
 
   glfwSetTime(0);
   glfwSwapInterval(0);

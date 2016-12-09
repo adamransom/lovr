@@ -40,7 +40,6 @@ typedef struct Buffer {
   BufferFormat format;
   BufferDrawMode drawMode;
   BufferUsage usage;
-  GLuint vao;
   GLuint vbo;
   GLuint ibo;
   vec_uint_t map;

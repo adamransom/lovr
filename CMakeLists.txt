@@ -72,7 +72,9 @@ endif()
 
 # PhysicsFS
 if(EMSCRIPTEN)
-  # do nothing
+  add_subdirectory(deps/physfs physfs)
+  include_directories(deps/physfs)
+  set(LOVR_PHYSFS physfs)
 elseif(WIN32)
   add_subdirectory(deps/physfs physfs)
   include_directories(deps/physfs)

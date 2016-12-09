@@ -138,7 +138,8 @@ void lovrInit(lua_State* L, int argc, char** argv) {
     "function lovr.run() "
     "  if lovr.load then lovr.load() end "
     "  while true do "
-    "    lovr.step() "
+    "    local exit = lovr.step() "
+    "    if exit then return exit end "
     "  end "
     "end "
 
